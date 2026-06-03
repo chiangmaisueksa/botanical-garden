@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ข้อมูลสวนพฤกษศาสตร์โรงเรียนจังหวัดเชียงใหม่</title>
+    <title>ระบบรายงานสารสนเทศ สวนพฤกษศาสตร์โรงเรียน จังหวัดเชียงใหม่</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
@@ -12,73 +12,95 @@
     <style>
       body {
         font-family: 'Kanit', sans-serif;
-        background-color: #f4f8fb; /* พื้นหลังสีฟ้าอ่อนสว่าง สบายตา */
-        color: #333333;
+        background-color: #f8fafc; /* พื้นหลังสไตล์ Dashboard สากล */
+        color: #1e293b;
       }
       .main-header {
-        /* ไล่สีจากน้ำเงินเข้ม (Navy) ไปฟ้า (Blue) */
-        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* สีกรมท่าลึกแบบหรูหรา */
         color: #ffffff;
-        padding: 35px 20px;
-        border-radius: 0 0 25px 25px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        margin-bottom: 30px;
-        border-bottom: 4px solid #4ca1af;
+        padding: 40px 20px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        margin-bottom: 35px;
       }
       .main-card {
         background-color: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.04);
-        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        padding: 25px;
         margin-bottom: 30px;
-        border: 1px solid #e1e8ed;
+        border: 1px solid #e2e8f0;
       }
       .filter-section {
-        background-color: #eef5fc; /* พื้นหลังตัวกรองสีฟ้าพาสเทล */
-        border-radius: 15px;
+        background-color: #ffffff;
+        border-radius: 12px;
         padding: 25px;
-        border: 1px solid #c9dff0;
+        border: 1px solid #cbd5e1;
       }
       .chart-container {
         position: relative;
         height: 280px;
         width: 100%;
       }
-      /* ตกแต่งตารางโทนน้ำเงิน */
+      /* ปรับตารางแบบมืออาชีพ */
       .table-custom {
-        border-radius: 12px;
+        border-radius: 8px;
         overflow: hidden;
+        border: 1px solid #e2e8f0;
       }
       .table-custom thead th {
-        background-color: #1976d2 !important; /* สีน้ำเงินสว่าง */
-        color: white !important;
+        background-color: #1e293b !important; /* สีกรมท่าสากล */
+        color: #ffffff !important;
         font-weight: 500;
-        border-bottom: 3px solid #0d47a1 !important; /* ขอบล่างสีน้ำเงินเข้ม */
+        font-size: 15px;
+        border-bottom: none !important;
+        padding: 14px 10px !important;
+      }
+      .table-custom tbody td {
+        padding: 12px 10px !important;
+        font-size: 14.5px;
+        color: #334155;
       }
       .table-hover tbody tr:hover {
-        background-color: #e3f2fd !important; /* ไฮไลต์สีฟ้าอ่อนเมื่อเอาเมาส์ชี้ */
+        background-color: #f1f5f9 !important; /* สีไฮไลต์แบบนุ่มนวล */
       }
-      /* ตกแต่งช่อง Dropdown */
-      .select-blue { border: 1px solid #90caf9; border-radius: 10px; }
-      .select-blue:focus { border-color: #1976d2; box-shadow: 0 0 0 0.25rem rgba(25, 118, 210, 0.25); }
+      /* คุมหน้าตาของฟอร์มเลือก */
+      .form-select, .form-control {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        font-size: 14px;
+        padding: 10px;
+      }
+      .form-select:focus, .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+      .card-title-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0f172a;
+        border-left: 4px solid #3b82f6;
+        padding-left: 10px;
+      }
     </style>
   </head>
   <body>
 
     <div class="main-header text-center">
-      <h2 class="fw-bold mb-2">
-        <i class="bi bi-tree text-info"></i> ฐานข้อมูลสวนพฤกษศาสตร์โรงเรียน
+      <h2 class="fw-bold mb-1">
+        <i class="bi bi-pie-chart text-info"></i> ระบบรายงานสารสนเทศ สวนพฤกษศาสตร์โรงเรียน
       </h2>
-      <h5 class="fw-light text-light">จังหวัดเชียงใหม่</h5>
+      <h5 class="fw-light text-slate-400" style="color: #94a3b8;">จังหวัดเชียงใหม่</h5>
     </div>
 
     <div class="container mb-5">
       
       <div id="loadingWrapper" class="text-center my-5 main-card">
-        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <div class="spinner-border text-secondary" role="status" style="width: 2.5rem; height: 2.5rem;">
           <span class="visually-hidden">Loading...</span>
         </div>
-        <h5 class="text-primary mt-3 fw-bold">กำลังประมวลผลข้อมูลสารสนเทศ...</h5>
+        <h5 class="text-secondary mt-3">กำลังประมวลผลข้อมูลโครงสร้างแดชบอร์ด...</h5>
       </div>
 
       <div id="contentWrapper" class="d-none">
@@ -86,8 +108,8 @@
         <div class="row mb-4">
           <div class="col-lg-8 mb-3">
             <div class="main-card h-100">
-              <h5 class="text-center mb-3 fw-bold" style="color: #1565c0;">
-                <i class="bi bi-bar-chart-fill"></i> จำนวนสถานศึกษาแยกตาม อำเภอ/เขต
+              <h5 class="card-title-text mb-4">
+                จำนวนสถานศึกษาแยกตาม อำเภอ/เขต
               </h5>
               <div class="chart-container">
                 <canvas id="districtChart"></canvas>
@@ -97,8 +119,8 @@
           
           <div class="col-lg-4 mb-3">
             <div class="main-card h-100">
-              <h5 class="text-center mb-3 fw-bold" style="color: #0277bd;">
-                <i class="bi bi-pie-chart-fill"></i> สัดส่วนตามสังกัด
+              <h5 class="card-title-text mb-4">
+                สัดส่วนจำแนกตามสังกัด
               </h5>
               <div class="chart-container">
                 <canvas id="agencyChart"></canvas>
@@ -108,23 +130,23 @@
         </div>
 
         <div class="filter-section shadow-sm mb-4">
-          <h5 class="mb-3 fw-bold text-primary"><i class="bi bi-funnel"></i> ตัวกรองค้นหาข้อมูล</h5>
+          <h5 class="mb-3 fw-bold text-dark" style="font-size: 16px;"><i class="bi bi-sliders"></i> ฟิลเตอร์การคัดกรองข้อมูล</h5>
           <div class="row">
             <div class="col-md-4 mb-2">
-              <label class="form-label fw-bold text-dark">สังกัด</label>
-              <select id="agencyFilter" class="form-select select-blue">
+              <label class="form-label small fw-medium text-secondary">หน่วยงานสังกัด</label>
+              <select id="agencyFilter" class="form-select">
                 <option value="">-- แสดงทุกสังกัด --</option>
               </select>
             </div>
             <div class="col-md-4 mb-2">
-              <label class="form-label fw-bold text-dark">อำเภอ / เขต</label>
-              <select id="districtFilter" class="form-select select-blue">
+              <label class="form-label small fw-medium text-secondary">อำเภอ / เขต</label>
+              <select id="districtFilter" class="form-select">
                 <option value="">-- แสดงทุกอำเภอ --</option>
               </select>
             </div>
             <div class="col-md-4 mb-2">
-              <label class="form-label fw-bold text-dark">ตำบล / แขวง</label>
-              <select id="subdistrictFilter" class="form-select select-blue">
+              <label class="form-label small fw-medium text-secondary">ตำบล / แขวง</label>
+              <select id="subdistrictFilter" class="form-select">
                 <option value="">-- แสดงทุกตำบล --</option>
               </select>
             </div>
@@ -151,7 +173,6 @@
         let districtChartInstance = null;
         let agencyChartInstance = null;
 
-        // เรียกข้อมูลจากไฟล์ data.csv บนเซิร์ฟเวอร์โดยตรง
         const csvFileName = "data.csv";
 
         Papa.parse(csvFileName, {
@@ -166,22 +187,19 @@
                return;
             }
 
-            // ค้นหาบรรทัดที่เป็น Header จริงๆ จากไฟล์
             let headerIndex = data.findIndex(row => row.includes("ชื่อสถานศึกษา") || row[3] === "ชื่อสถานศึกษา");
             if(headerIndex === -1) {
-              $('#loadingWrapper').html('<div class="alert alert-danger">เกิดข้อผิดพลาด: ไม่พบโครงสร้างตาราง (คำว่า "ชื่อสถานศึกษา") ในไฟล์ CSV</div>');
+              $('#loadingWrapper').html('<div class="alert alert-danger">โครงสร้างตารางไม่ถูกต้อง ไม่พบหัวข้อหลักในไฟล์ข้อมูล</div>');
               return;
             }
 
             const headers = data[headerIndex];
             const rawRows = data.slice(headerIndex + 1);
-            // คัดกรองเฉพาะแถวที่มีข้อมูลสมบูรณ์
             const validRows = rawRows.filter(row => row.length === headers.length && row[3] !== "");
 
             $('#loadingWrapper').slideUp();
             $('#contentWrapper').removeClass('d-none');
 
-            // เริ่มต้นใช้งาน DataTables
             table = $('#schoolTable').DataTable({
               data: validRows,
               columns: headers.map(function(header) {
@@ -189,19 +207,17 @@
               }),
               language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json',
-                search: "ค้นหาชื่อโรงเรียน/ข้อมูลทั่วไป:"
+                search: "ค้นหาด่วน (Quick Search):"
               },
               pageLength: 20,
               responsive: true,
               lengthMenu: [[10, 20, 50, 100, -1], [10, 20, 50, 100, "ทั้งหมด"]]
             });
 
-            // กำหนด Index คอลัมน์ (สังกัด=4, ตำบล=5, อำเภอ=6)
             const COL_AGENCY = 4;
             const COL_SUBDISTRICT = 5;
             const COL_DISTRICT = 6;
 
-            // นำข้อมูลใส่ในช่องตัวกรอง Dropdown
             let agencies = [...new Set(validRows.map(item => item[COL_AGENCY]))].filter(x => x).sort();
             let districts = [...new Set(validRows.map(item => item[COL_DISTRICT]))].filter(x => x).sort();
             let subdistricts = [...new Set(validRows.map(item => item[COL_SUBDISTRICT]))].filter(x => x).sort();
@@ -210,13 +226,12 @@
             districts.forEach(d => $('#districtFilter').append(`<option value="${d}">${d}</option>`));
             subdistricts.forEach(s => $('#subdistrictFilter').append(`<option value="${s}">${s}</option>`));
 
-            // ชุดสีโทน ฟ้า-น้ำเงิน
-            const bluePalette = [
-              '#0d47a1', '#1565c0', '#1976d2', '#1e88e5', '#2196f3', '#42a5f5', '#64b5f6', 
-              '#90caf9', '#0277bd', '#0288d1', '#039be5', '#03a9f4', '#29b6f6', '#4fc3f7'
+            // พาเลตสีสากลระดับพรีเมียม (Professional Blues & Slates)
+            const professionalPalette = [
+              '#1e3a8a', '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#1d4ed8', '#1e40af', 
+              '#0284c7', '#0369a1', '#0f172a', '#334155', '#475569', '#64748b'
             ];
 
-            // ฟังก์ชันวาดแดชบอร์ดกราฟ
             function renderCharts() {
               let filteredData = table.rows({search: 'applied'}).data().toArray();
               let agencyCounts = {};
@@ -229,9 +244,9 @@
                 if(dist) districtCounts[dist] = (districtCounts[dist] || 0) + 1;
               });
 
-              // กราฟแท่งอำเภอ
+              // กราฟแท่ง (อำเภอ)
               let sortedDistricts = Object.entries(districtCounts).sort((a, b) => b[1] - a[1]);
-              let barColors = sortedDistricts.map((_, index) => bluePalette[index % bluePalette.length]);
+              let barColors = sortedDistricts.map((_, index) => professionalPalette[index % professionalPalette.length]);
 
               if (districtChartInstance) districtChartInstance.destroy();
               let ctxDist = document.getElementById('districtChart').getContext('2d');
@@ -243,9 +258,9 @@
                     label: 'จำนวนสถานศึกษา',
                     data: sortedDistricts.map(item => item[1]),
                     backgroundColor: barColors,
-                    borderRadius: 6,
+                    borderRadius: 4,
                     barThickness: 'flex',
-                    maxBarThickness: 35
+                    maxBarThickness: 24
                   }]
                 },
                 options: {
@@ -253,13 +268,20 @@
                   maintainAspectRatio: false,
                   plugins: { legend: { display: false } },
                   scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1, font: {family: 'Kanit'} } },
-                    x: { ticks: { font: {family: 'Kanit', size: 11} } }
+                    y: { 
+                      beginAtZero: true, 
+                      grid: { color: '#f1f5f9' }, // เส้นตารางจางๆ แบบสะอาดตา
+                      ticks: { stepSize: 1, font: {family: 'Kanit', size: 11}, color: '#64748b' } 
+                    },
+                    x: { 
+                      grid: { display: false },
+                      ticks: { font: {family: 'Kanit', size: 11}, color: '#475569' } 
+                    }
                   }
                 }
               });
 
-              // กราฟโดนัทสังกัด
+              // กราฟโดนัท (สังกัด)
               let agencyLabels = Object.keys(agencyCounts);
               let agencyData = Object.values(agencyCounts);
               if (agencyChartInstance) agencyChartInstance.destroy();
@@ -270,7 +292,7 @@
                   labels: agencyLabels,
                   datasets: [{
                     data: agencyData,
-                    backgroundColor: bluePalette.slice(0, agencyLabels.length),
+                    backgroundColor: professionalPalette.slice(0, agencyLabels.length),
                     borderWidth: 2,
                     borderColor: '#ffffff'
                   }]
@@ -281,17 +303,16 @@
                   plugins: {
                     legend: { 
                       position: 'bottom', 
-                      labels: { font: {family: 'Kanit', size: 12}, boxWidth: 12 } 
+                      labels: { font: {family: 'Kanit', size: 11}, boxWidth: 12, color: '#334155' } 
                     }
                   }
                 }
               });
             }
 
-            // วาดกราฟเมื่อโหลดหน้าเว็บครั้งแรก
             renderCharts();
 
-            // จัดการ Event ตัวกรอง Dropdown ทั้ง 3 ช่อง
+            // ตัวควบคุม Dropdown Filters
             $('#agencyFilter').on('change', function() {
               let val = $.fn.dataTable.util.escapeRegex($(this).val());
               table.column(COL_AGENCY).search(val ? '^' + val + '$' : '', true, false).draw();
@@ -307,12 +328,11 @@
               table.column(COL_SUBDISTRICT).search(val ? '^' + val + '$' : '', true, false).draw();
             });
 
-            // สั่งให้กราฟอัปเดตแบบ Real-time ทุกครั้งที่มีการค้นหา/คัดกรองข้อมูล
             table.on('search.dt', function() { renderCharts(); });
 
           },
           error: function(err) {
-            $('#loadingWrapper').html('<div class="alert alert-danger">เกิดข้อผิดพลาดในการโหลดไฟล์: ตรวจสอบให้แน่ใจว่ามีไฟล์ data.csv อยู่บน GitHub เรียบร้อยแล้วครับ</div>');
+            $('#loadingWrapper').html('<div class="alert alert-danger">เกิดข้อผิดพลาดในการโหลดไฟล์ข้อมูล กรุณาตรวจสอบการเชื่อมโยงเครือข่าย</div>');
           }
         });
       });
