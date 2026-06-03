@@ -86,4 +86,428 @@
 
   /* Sangkad Bar */
   .sangkad-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 300px; overflow-y: auto; padding-right: 10px;}
-  .sangkad-row { display: flex; align-items: center
+  .sangkad-row { display: flex; align-items: center; gap: 0.75rem; }
+  .sangkad-name { font-size: 0.78rem; color: var(--text); width: 200px; flex-shrink: 0; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; height: 10px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); width: 0%; }
+  .sangkad-count { font-size: 0.8rem; font-weight: 600; color: var(--accent); width: 36px; text-align: right; flex-shrink: 0; }
+
+  /* Table & Search */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  thead tr { background: var(--surface2); }
+  th { padding: 0.75rem 1rem; text-align: left; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; font-size: 0.75rem; text-transform: uppercase; }
+  th:first-child { border-radius: 8px 0 0 8px; } th:last-child  { border-radius: 0 8px 8px 0; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 0.7rem 1rem; color: var(--text); vertical-align: middle; }
+  .rank { width: 30px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; }
+  .rank-1 { background: rgba(251,191,36,0.15); color: var(--gold); } .rank-2 { background: rgba(148,163,184,0.15); color: #94a3b8; } .rank-3 { background: rgba(251,146,60,0.15); color: var(--accent4); } .rank-n { background: var(--surface2); color: var(--muted); }
+  .pill { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+  
+  .search-box {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'Sarabun', sans-serif;
+    outline: none;
+    width: 320px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to   { opacity: 1; transform: translateY(0); } }
+  .kpi-card, .card { animation: fadeUp 0.5s ease both; }
+  .kpi-card:nth-child(1) { animation-delay: 0.05s; } .kpi-card:nth-child(2) { animation-delay: 0.10s; } .kpi-card:nth-child(3) { animation-delay: 0.15s; } .kpi-card:nth-child(4) { animation-delay: 0.20s; }
+
+  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; font-size: 0.78rem; color: var(--muted); }
+
+  @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } .chart-grid { grid-template-columns: 1fr; } .chart-full { grid-column: 1; } .sangkad-name { width: 140px; } }
+  @media (max-width: 550px) { .kpi-grid { grid-template-columns: 1fr 1fr; } h1 { font-size: 1.15rem; } .kpi-value { font-size: 1.8rem; } .search-box { width: 100%; margin-top: 1rem; } .search-header { flex-direction: column; align-items: flex-start; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-left">
+      <div class="logo-icon">📚</div>
+      <h1>
+        ระบบสมาชิกห้องสมุด
+        <span>CHIANGMAI LIBRARY NETWORK · DASHBOARD</span>
+      </h1>
+    </div>
+    <div class="badge">จังหวัดเชียงใหม่</div>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-icon">🏫</div>
+      <div class="kpi-value"><span id="kpi-total">...</span><span class="unit">แห่ง</span></div>
+      <div class="kpi-label">สถานศึกษาสมาชิกทั้งหมด</div>
+      <div class="kpi-sub">ครอบคลุมทั่วเชียงใหม่</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-icon">🗺️</div>
+      <div class="kpi-value"><span id="kpi-amphoe">...</span><span class="unit">อำเภอ</span></div>
+      <div class="kpi-label">พื้นที่ที่มีสมาชิก</div>
+      <div class="kpi-sub">ครอบคลุมในจังหวัด</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-icon">🏛️</div>
+      <div class="kpi-value"><span id="kpi-sangkad">...</span><span class="unit">สังกัด</span></div>
+      <div class="kpi-label">หน่วยงานต้นสังกัด</div>
+      <div class="kpi-sub">หลากหลายประเภทสถานศึกษา</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-icon">📅</div>
+      <div class="kpi-value"><span id="kpi-new">...</span><span class="unit">แห่ง</span></div>
+      <div class="kpi-label" id="kpi-new-label">สมาชิกใหม่ล่าสุด</div>
+      <div class="kpi-sub">ดึงข้อมูลอัตโนมัติ</div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card chart-full" style="animation-delay:0.25s">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="dot" style="background:var(--accent)"></span>
+          จำนวนสมาชิกที่เพิ่มขึ้นรายปี (พ.ศ.)
+        </div>
+      </div>
+      <canvas id="yearChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card" style="animation-delay:0.3s">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="dot" style="background:var(--accent2)"></span>
+          สัดส่วนสังกัดหลัก (Top 6)
+        </div>
+      </div>
+      <canvas id="donutChart"></canvas>
+    </div>
+
+    <div class="card" style="animation-delay:0.35s">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="dot" style="background:var(--accent3)"></span>
+          อำเภอที่มีสมาชิกมากที่สุด (Top 15)
+        </div>
+      </div>
+      <canvas id="amphoeChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card" style="animation-delay:0.4s">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="dot" style="background:var(--gold)"></span>
+          สังกัดทั้งหมด — จำนวนสมาชิก
+        </div>
+      </div>
+      <div class="sangkad-list" id="sangkadList"></div>
+    </div>
+
+    <div class="card" style="animation-delay:0.45s">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="dot" style="background:var(--accent4)"></span>
+          อันดับอำเภอ — Top 10
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="amphoeTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>อำเภอ</th>
+              <th>จำนวน</th>
+              <th>สัดส่วน</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card chart-full" style="animation-delay:0.5s; margin-bottom: 2rem;">
+      <div class="card-header search-header">
+        <div class="card-title">
+          <span class="dot" style="background:var(--text)"></span>
+          ค้นหาข้อมูลสถานศึกษา
+        </div>
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 พิมพ์ชื่อโรงเรียนเพื่อค้นหา...">
+      </div>
+      <div class="table-wrap" style="max-height: 400px; overflow-y: auto;">
+        <table id="searchTable">
+          <thead>
+            <tr>
+              <th>รหัสสมาชิก</th>
+              <th>ชื่อสถานศึกษา</th>
+              <th>สังกัด</th>
+              <th>อำเภอ</th>
+              <th>วันที่เข้าร่วม</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    ข้อมูล: ระบบสมาชิกห้องสมุด จังหวัดเชียงใหม่ · อัปเดตข้อมูลอัตโนมัติจาก CSV
+  </footer>
+</div>
+
+<script>
+Chart.defaults.color = '#64748b';
+Chart.defaults.font.family = "'Sarabun', sans-serif";
+
+const ACCENT  = '#38bdf8';
+const PURPLE  = '#818cf8';
+const GREEN   = '#34d399';
+const ORANGE  = '#fb923c';
+const GOLD    = '#fbbf24';
+const PINK    = '#f472b6';
+const TEAL    = '#2dd4bf';
+const donutColors = [ACCENT, PURPLE, GREEN, ORANGE, GOLD, PINK, TEAL];
+
+let globalData = [];
+let chartInstances = {};
+
+// 1. ดึงข้อมูลและประมวลผลผ่าน PapaParse
+Papa.parse('data.csv', {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    // กรองเอาเฉพาะบรรทัดที่มีชื่อสถานศึกษา
+    globalData = results.data.filter(row => row['ชื่อสถานศึกษา']); 
+    processData(globalData);
+    renderSearchTable(globalData); // แสดงข้อมูลเริ่มต้นในตารางค้นหา
+  },
+  error: function(err) {
+    console.error("เกิดข้อผิดพลาดในการอ่านไฟล์ CSV:", err);
+    alert("ไม่สามารถโหลด data.csv ได้ โปรดรันไฟล์ HTML ผ่าน Local Server");
+  }
+});
+
+// 2. คำนวณข้อมูลจาก CSV
+function processData(data) {
+  const total = data.length;
+  document.getElementById('kpi-total').innerText = total;
+
+  const yearCounts = {};
+  const sangkadCounts = {};
+  const amphoeCounts = {};
+
+  data.forEach(row => {
+    // ดึงปี พ.ศ. ออกจากวันที่ตอบรับ
+    const dateStr = row['วันที่ตอบรับสมาชิก'] || '';
+    const parts = dateStr.trim().split(' ');
+    const year = parts[parts.length - 1]; 
+    if (year && !isNaN(year)) {
+      yearCounts[year] = (yearCounts[year] || 0) + 1;
+    }
+
+    // จัดกลุ่มสังกัด
+    const sangkad = (row['สังกัด'] || 'อื่นๆ').trim();
+    if(sangkad) sangkadCounts[sangkad] = (sangkadCounts[sangkad] || 0) + 1;
+
+    // จัดกลุ่มอำเภอ (รองรับชื่อคอลัมน์หลายรูปแบบ)
+    const amphoeRaw = row['อำเภอ /เขต'] || row['อำเภอ/เขต'] || row['อำเภอ'] || 'ไม่ระบุ';
+    const amphoe = amphoeRaw.replace('อำเภอ', '').trim();
+    if (amphoe && amphoe !== 'ไม่ระบุ') amphoeCounts[amphoe] = (amphoeCounts[amphoe] || 0) + 1;
+  });
+
+  // เตรียมข้อมูลกราฟปี
+  const sortedYears = Object.keys(yearCounts).sort();
+  const yearValues = sortedYears.map(y => yearCounts[y]);
+  const maxYear = sortedYears[sortedYears.length - 1] || '-';
+  
+  // อัปเดต KPI ปีล่าสุด
+  document.getElementById('kpi-new').innerText = yearCounts[maxYear] || 0;
+  document.getElementById('kpi-new-label').innerText = `สมาชิกใหม่ปี ${maxYear}`;
+
+  // เตรียมข้อมูลสังกัดและอำเภอเรียงตามจำนวน (มากไปน้อย)
+  const sangkadArr = Object.keys(sangkadCounts).map(k => ({name: k, count: sangkadCounts[k]})).sort((a,b) => b.count - a.count);
+  const amphoeArr = Object.keys(amphoeCounts).map(k => ({name: k, count: amphoeCounts[k]})).sort((a,b) => b.count - a.count);
+
+  document.getElementById('kpi-sangkad').innerText = sangkadArr.length;
+  document.getElementById('kpi-amphoe').innerText = amphoeArr.length;
+
+  renderCharts(sortedYears, yearValues, sangkadArr, amphoeArr);
+  renderSangkadList(sangkadArr);
+  renderAmphoeTable(amphoeArr, total);
+}
+
+// 3. ฟังก์ชันวาดกราฟทั้งหมด
+function renderCharts(years, yearVals, sangkadArr, amphoeArr) {
+  // Year Chart
+  if(chartInstances.year) chartInstances.year.destroy();
+  chartInstances.year = new Chart(document.getElementById('yearChart'), {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [{
+        label: 'จำนวนสมาชิกใหม่',
+        data: yearVals,
+        backgroundColor: yearVals.map((v, i) => i === yearVals.length - 1 ? 'rgba(251,191,36,0.85)' : 'rgba(56,189,248,0.6)'),
+        borderColor: yearVals.map((v, i) => i === yearVals.length - 1 ? '#fbbf24' : ACCENT),
+        borderWidth: 1.5,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(99,179,237,0.06)' }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: 'rgba(99,179,237,0.08)' }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Donut Chart
+  const top6 = sangkadArr.slice(0, 6);
+  const rest = sangkadArr.slice(6).reduce((a, b) => a + b.count, 0);
+  if(chartInstances.donut) chartInstances.donut.destroy();
+  chartInstances.donut = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: [...top6.map(d => d.name), 'อื่นๆ'],
+      datasets: [{
+        data: [...top6.map(d => d.count), rest],
+        backgroundColor: [...donutColors.slice(0,6), '#334155'],
+        borderColor: '#111827',
+        borderWidth: 3,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Amphoe Chart
+  const top15Amphoe = amphoeArr.slice(0, 15);
+  if(chartInstances.amphoe) chartInstances.amphoe.destroy();
+  chartInstances.amphoe = new Chart(document.getElementById('amphoeChart'), {
+    type: 'bar',
+    data: {
+      labels: top15Amphoe.map(d => d.name),
+      datasets: [{
+        data: top15Amphoe.map(d => d.count),
+        backgroundColor: top15Amphoe.map((_, i) => `hsla(${170 + i * 8}, 70%, 55%, 0.75)`),
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(99,179,237,0.07)' }, ticks: { font: { size: 10 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+// 4. เรนเดอร์หลอดเปอร์เซ็นต์สังกัด
+function renderSangkadList(sangkadArr) {
+  const maxCount = sangkadArr[0]?.count || 1;
+  const list = document.getElementById('sangkadList');
+  const barColors = [ACCENT, PURPLE, GREEN, ORANGE, GOLD, PINK, TEAL, '#e879f9', '#a78bfa', '#67e8f9', '#86efac', '#fca5a5'];
+  
+  list.innerHTML = '';
+  sangkadArr.forEach((d, i) => {
+    const pct = (d.count / maxCount * 100).toFixed(1);
+    const row = document.createElement('div');
+    row.className = 'sangkad-row';
+    row.innerHTML = `
+      <div class="sangkad-name" title="${d.name}">${d.name}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:0%;background:${barColors[i%barColors.length]}" data-w="${pct}%"></div>
+      </div>
+      <div class="sangkad-count">${d.count}</div>
+    `;
+    list.appendChild(row);
+  });
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(el => { el.style.width = el.dataset.w; });
+  }, 100);
+}
+
+// 5. เรนเดอร์ตาราง Top 10 อำเภอ
+function renderAmphoeTable(amphoeArr, total) {
+  const tbody = document.querySelector('#amphoeTable tbody');
+  tbody.innerHTML = '';
+  amphoeArr.slice(0, 10).forEach((d, i) => {
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+    const pct = (d.count / total * 100).toFixed(1);
+    const pillColor = i < 3 ? `background:rgba(56,189,248,0.12);color:var(--accent)` : `background:var(--surface2);color:var(--muted)`;
+    tbody.innerHTML += `
+      <tr>
+        <td><span class="rank ${rankClass}">${i+1}</span></td>
+        <td>${d.name}</td>
+        <td style="font-weight:600;color:#fff">${d.count}</td>
+        <td><span class="pill" style="${pillColor}">${pct}%</span></td>
+      </tr>
+    `;
+  });
+}
+
+// 6. ระบบค้นหา (Search Feature)
+const searchInput = document.getElementById('searchInput');
+const searchTbody = document.querySelector('#searchTable tbody');
+
+function renderSearchTable(dataToRender) {
+  searchTbody.innerHTML = '';
+  // ตัดแสดงผลที่ 50 รายการเพื่อไม่ให้หน้าเว็บกระตุก
+  dataToRender.slice(0, 50).forEach(row => {
+    const amphoeStr = row['อำเภอ /เขต'] || row['อำเภอ/เขต'] || row['อำเภอ'] || '-';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row['รหัสสมาชิก'] || '-'}</td>
+      <td style="color:#fff; font-weight:500;">${row['ชื่อสถานศึกษา'] || '-'}</td>
+      <td>${row['สังกัด'] || '-'}</td>
+      <td>${amphoeStr}</td>
+      <td>${row['วันที่ตอบรับสมาชิก'] || '-'}</td>
+    `;
+    searchTbody.appendChild(tr);
+  });
+
+  if (dataToRender.length === 0) {
+    searchTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--muted);">ไม่พบข้อมูลสถานศึกษาที่ค้นหา</td></tr>`;
+  }
+}
+
+searchInput.addEventListener('input', (e) => {
+  const keyword = e.target.value.toLowerCase().trim();
+  const filteredData = globalData.filter(row => {
+    const name = (row['ชื่อสถานศึกษา'] || '').toLowerCase();
+    return name.includes(keyword);
+  });
+  renderSearchTable(filteredData);
+});
+</script>
+</body>
+</html>
