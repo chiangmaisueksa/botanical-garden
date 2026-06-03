@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>โรงเรียนสวนพฤกษศาสตร์จังหวัดเชียงใหม่</title>
+<title>แดชบอร์ดสมาชิก — ห้องสมุดเชียงใหม่</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Prompt:wght@300;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -83,7 +83,7 @@
   .card-title .dot { width: 8px; height: 8px; border-radius: 50%; }
   canvas { max-height: 300px; }
 
-  /* Sangkad Bar */
+  /* Sangkad Bar (Full width, removed max height) */
   .sangkad-list { display: flex; flex-direction: column; gap: 0.75rem; padding-right: 10px; }
   .sangkad-row { display: flex; align-items: center; gap: 0.75rem; }
   .sangkad-name { font-size: 0.78rem; color: var(--text); width: 220px; flex-shrink: 0; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -132,7 +132,8 @@
     <div class="header-left">
       <div class="logo-icon">📚</div>
       <h1>
-        ข้อมูลโรงเรียนสวนพฤกษศาสตร์
+        ระบบสมาชิกห้องสมุด
+        <span>CHIANGMAI LIBRARY NETWORK · DASHBOARD</span>
       </h1>
     </div>
     <div class="badge">จังหวัดเชียงใหม่</div>
@@ -143,25 +144,25 @@
       <div class="kpi-icon">🏫</div>
       <div class="kpi-value"><span id="kpi-total">0</span><span class="unit">แห่ง</span></div>
       <div class="kpi-label">สถานศึกษาสมาชิกทั้งหมด</div>
-      <div class="kpi-sub">สถานศึกษาสมาชิกทั้งหมด</div>
+      <div class="kpi-sub">ครอบคลุมทั่วเชียงใหม่</div>
     </div>
     <div class="kpi-card purple">
       <div class="kpi-icon">🗺️</div>
       <div class="kpi-value"><span id="kpi-amphoe">0</span><span class="unit">อำเภอ</span></div>
       <div class="kpi-label">พื้นที่ที่มีสมาชิก</div>
-      <div class="kpi-sub">พื้นที่ที่มีสมาชิก</div>
+      <div class="kpi-sub">ครอบคลุมในจังหวัด</div>
     </div>
     <div class="kpi-card green">
       <div class="kpi-icon">🏛️</div>
       <div class="kpi-value"><span id="kpi-sangkad">0</span><span class="unit">สังกัด</span></div>
       <div class="kpi-label">หน่วยงานต้นสังกัด</div>
-      <div class="kpi-sub">หน่วยงานต้นสังกัด</div>
+      <div class="kpi-sub">หลากหลายประเภทสถานศึกษา</div>
     </div>
     <div class="kpi-card orange">
       <div class="kpi-icon">📅</div>
       <div class="kpi-value"><span id="kpi-new">0</span><span class="unit">แห่ง</span></div>
       <div class="kpi-label" id="kpi-new-label">สมาชิกใหม่ล่าสุด</div>
-      <div class="kpi-sub">สมาชิกใหม่ล่าสุด</div>
+      <div class="kpi-sub">ดึงข้อมูลอัตโนมัติ</div>
     </div>
   </div>
 
@@ -252,8 +253,7 @@
               <th>ชื่อสถานศึกษา</th>
               <th>สังกัด</th>
               <th>อำเภอ</th>
-              <th>วันที่เข้าร่วม</th>
-            </tr>
+              <th>ปีที่เข้าร่วม</th> </tr>
           </thead>
           <tbody>
             <tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--muted);">กำลังโหลดข้อมูล...</td></tr>
@@ -265,7 +265,7 @@
   </div>
 
   <footer>
-    สำนักงานศึกษาธิการจังหวัดเชียงใหม่
+    ข้อมูล: ระบบสมาชิกห้องสมุด จังหวัดเชียงใหม่ · อัปเดตข้อมูลอัตโนมัติจาก CSV
   </footer>
 </div>
 
@@ -287,13 +287,9 @@ let currentFilteredData = [];
 let chartInstances = {};
 let csvKeys = { id: '', name: '', sangkad: '', amphoe: '', date: '' };
 
-// ตัวแปรสำหรับ Pagination
 let currentPage = 1;
-const rowsPerPage = 25; // จำนวนที่ต้องการแสดงต่อ 1 หน้า
+const rowsPerPage = 25; 
 
-// ----------------------------------------------------
-// ระบบแก้ปัญหาภาษาไทย และ ย่อชื่อสังกัดอัตโนมัติ
-// ----------------------------------------------------
 function normalizeThaiString(str) {
   if (!str) return '';
   return str.replace(/\u0E4D\u0E32/g, '\u0E33');
@@ -318,9 +314,6 @@ function shortenSangkad(sangkad) {
   return s;
 }
 
-// ----------------------------------------------------
-// ฟังก์ชันประมวลผลหลัก
-// ----------------------------------------------------
 function processResults(results) {
   if (results.data && results.data.length > 0) {
     const headers = Object.keys(results.data[0]);
@@ -338,19 +331,29 @@ function processResults(results) {
   }
 }
 
-// ----------------------------------------------------
 // โหลดข้อมูลอัตโนมัติ
-// ----------------------------------------------------
 Papa.parse('data.csv', {
   download: true,
   header: true,
   skipEmptyLines: true,
-  complete: function(results) { processResults(results); }
+  complete: function(results) { 
+    processResults(results); 
+  },
+  error: function(err) {
+    console.error("PapaParse Error:", err);
+    const errorMsg = `
+      <div style="text-align:center; padding: 2rem; color:#fca5a5; background: rgba(252, 165, 165, 0.1); border-radius: 8px;">
+        <h3 style="margin-bottom:1rem; font-family:'Prompt', sans-serif;">⚠️ ไม่สามารถโหลดข้อมูล data.csv ได้</h3>
+        <p style="margin-bottom:0.5rem; font-size:0.9rem;">หากคุณเปิดไฟล์ <b>index.html</b> ในคอมพิวเตอร์โดยตรง เบราว์เซอร์จะบล็อกการอ่านไฟล์เพื่อความปลอดภัย</p>
+        <p style="font-size:0.9rem; color:var(--text);"><b>วิธีแก้ไข:</b> กรุณานำไฟล์นี้ขึ้นไปวางบน <b>GitHub Pages</b> หรือรันผ่านโปรแกรม <b>Live Server</b> ครับ</p>
+      </div>
+    `;
+    document.getElementById('sangkadList').innerHTML = errorMsg;
+    document.querySelector('#searchTable tbody').innerHTML = `<tr><td colspan="5">${errorMsg}</td></tr>`;
+    document.querySelector('#amphoeTable tbody').innerHTML = `<tr><td colspan="4" style="text-align:center; padding:1rem; color:var(--muted);">ไม่สามารถโหลดข้อมูล</td></tr>`;
+  }
 });
 
-// ----------------------------------------------------
-// คำนวณข้อมูลกราฟ
-// ----------------------------------------------------
 function processData(data) {
   const total = data.length;
   document.getElementById('kpi-total').innerText = total;
@@ -392,9 +395,6 @@ function processData(data) {
   renderAmphoeTable(amphoeArr, total);
 }
 
-// ----------------------------------------------------
-// Pagination & Table Rendering
-// ----------------------------------------------------
 function renderTablePage() {
   const searchTbody = document.querySelector('#searchTable tbody');
   searchTbody.innerHTML = '';
@@ -453,9 +453,6 @@ searchInput.addEventListener('input', (e) => {
   renderTablePage();
 });
 
-// ----------------------------------------------------
-// วาดกราฟย่อย
-// ----------------------------------------------------
 function renderCharts(years, yearVals, sangkadArr, amphoeArr) {
   if(chartInstances.year) chartInstances.year.destroy();
   chartInstances.year = new Chart(document.getElementById('yearChart'), { type: 'bar', data: { labels: years, datasets: [{ label: 'จำนวนสมาชิกใหม่', data: yearVals, backgroundColor: yearVals.map((v, i) => i === yearVals.length - 1 ? 'rgba(251,191,36,0.85)' : 'rgba(56,189,248,0.6)'), borderColor: yearVals.map((v, i) => i === yearVals.length - 1 ? '#fbbf24' : ACCENT), borderWidth: 1.5, borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(99,179,237,0.06)' } }, y: { grid: { color: 'rgba(99,179,237,0.08)' } } } } });
