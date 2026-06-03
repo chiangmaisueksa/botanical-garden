@@ -278,3 +278,44 @@
                 options: {
                   responsive: true,
                   maintainAspectRatio: false,
+                  plugins: {
+                    legend: { 
+                      position: 'bottom', 
+                      labels: { font: {family: 'Kanit', size: 12}, boxWidth: 12 } 
+                    }
+                  }
+                }
+              });
+            }
+
+            // วาดกราฟเมื่อโหลดหน้าเว็บครั้งแรก
+            renderCharts();
+
+            // จัดการ Event ตัวกรอง Dropdown ทั้ง 3 ช่อง
+            $('#agencyFilter').on('change', function() {
+              let val = $.fn.dataTable.util.escapeRegex($(this).val());
+              table.column(COL_AGENCY).search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+
+            $('#districtFilter').on('change', function() {
+              let val = $.fn.dataTable.util.escapeRegex($(this).val());
+              table.column(COL_DISTRICT).search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+
+            $('#subdistrictFilter').on('change', function() {
+              let val = $.fn.dataTable.util.escapeRegex($(this).val());
+              table.column(COL_SUBDISTRICT).search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+
+            // สั่งให้กราฟอัปเดตแบบ Real-time ทุกครั้งที่มีการค้นหา/คัดกรองข้อมูล
+            table.on('search.dt', function() { renderCharts(); });
+
+          },
+          error: function(err) {
+            $('#loadingWrapper').html('<div class="alert alert-danger">เกิดข้อผิดพลาดในการโหลดไฟล์: ตรวจสอบให้แน่ใจว่ามีไฟล์ data.csv อยู่บน GitHub เรียบร้อยแล้วครับ</div>');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
