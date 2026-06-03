@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แดชบอร์ดสมาชิก — โรงเรียนสวนพฤกษศาสตร์จังหวัดเชียงใหม่</title>
+<title>แดชบอร์ดสมาชิก — ห้องสมุดเชียงใหม่</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Prompt:wght@300;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -136,7 +136,8 @@
     <div class="header-left">
       <div class="logo-icon">📚</div>
       <h1>
-        ข้อมูลโรงเรียนสวนพฤกษศาสตร์
+        ระบบสมาชิกห้องสมุด
+        <span>CHIANGMAI LIBRARY NETWORK · DASHBOARD</span>
       </h1>
     </div>
     <div class="badge">จังหวัดเชียงใหม่</div>
@@ -147,7 +148,7 @@
       <div class="kpi-icon">🏫</div>
       <div class="kpi-value"><span id="kpi-total">...</span><span class="unit">แห่ง</span></div>
       <div class="kpi-label">สถานศึกษาสมาชิกทั้งหมด</div>
-      <div class="kpi-sub">จังหวัดเชียงใหม่</div>
+      <div class="kpi-sub">ครอบคลุมทั่วเชียงใหม่</div>
     </div>
     <div class="kpi-card purple">
       <div class="kpi-icon">🗺️</div>
@@ -265,7 +266,7 @@
   </div>
 
   <footer>
-    สำนักงานศึกษาธิการจังหวัดเชียงใหม่
+    ข้อมูล: ระบบสมาชิกห้องสมุด จังหวัดเชียงใหม่ · อัปเดตข้อมูลอัตโนมัติจาก CSV
   </footer>
 </div>
 
@@ -285,25 +286,46 @@ const donutColors = [ACCENT, PURPLE, GREEN, ORANGE, GOLD, PINK, TEAL];
 let globalData = [];
 let chartInstances = {};
 
-// ตัวแปรสำหรับเก็บชื่อคอลัมน์ที่ระบบค้นพบอัตโนมัติ
+// แก้ปัญหาไฟล์ CSV ที่เซฟจากเครื่องที่ภาษาไทยกระโดด (สระอำ แยกเป็น นิคหิต+สระอา)
+function normalizeThaiString(str) {
+  if (!str) return '';
+  // \u0E4D คือ นิคหิต ( ํ ) และ \u0E32 คือ สระอา ( า ) ให้รวมกลับเป็นสระอำ \u0E33
+  return str.replace(/\u0E4D\u0E32/g, '\u0E33'); 
+}
+
+// ย่อชื่อสังกัดให้สั้นลง เพื่อให้กราฟสวยงาม (จากไฟล์จริงชื่อยาวมาก)
+function shortenSangkad(sangkad) {
+  let s = normalizeThaiString(sangkad).trim();
+  s = s.replace(/สำนักงานเขตพื้นที่การศึกษาประถมศึกษา/g, 'สพป.');
+  s = s.replace(/สำนักงานเขตพื้นที่การศึกษามัธยมศึกษา/g, 'สพม.');
+  s = s.replace(/สำนักงานคณะกรรมการส่งเสริมการศึกษาเอกชน/g, 'สช. (เอกชน)');
+  s = s.replace(/กรมส่งเสริมการปกครองท้องถิ่น/g, 'อปท.');
+  s = s.replace(/สำนักงานส่งเสริมการเรียนรู้.*/g, 'สกร.');
+  s = s.replace(/กองกำกับการตำรวจตระเวนชายแดนที่/g, 'ตชด.');
+  s = s.replace(/สำนักงานคณะกรรมการการอาชีวศึกษา/g, 'อาชีวศึกษา');
+  s = s.replace(/สำนักบริหารงานการศึกษาพิเศษ/g, 'การศึกษาพิเศษ');
+  s = s.replace(/เชียงใหม่ เขต/g, 'ชม. เขต');
+  s = s.replace(/เชียงใหม่/g, 'ชม.');
+  return s;
+}
+
+// ตัวแปรเก็บตำแหน่งคอลัมน์
 let csvKeys = { id: '', name: '', sangkad: '', amphoe: '', date: '' };
 
-// 1. ดึงข้อมูลและประมวลผลผ่าน PapaParse
 Papa.parse('data.csv', {
   download: true,
   header: true,
   skipEmptyLines: true,
   complete: function(results) {
     if (results.data && results.data.length > 0) {
-      // ค้นหาหัวคอลัมน์ที่แท้จริงจากไฟล์ CSV
+      // ค้นหาคอลัมน์โดยทำ Normalize ก่อน
       const headers = Object.keys(results.data[0]);
-      csvKeys.id = headers.find(h => h.includes('รหัส')) || headers[0];
-      csvKeys.name = headers.find(h => h.includes('ชื่อสถานศึกษา') || h.includes('โรงเรียน') || h.includes('ชื่อ')) || headers[1];
-      csvKeys.sangkad = headers.find(h => h.includes('สังกัด') || h.includes('หน่วยงาน')) || headers[2];
-      csvKeys.amphoe = headers.find(h => h.includes('อำเภอ') || h.includes('เขต')) || headers[3];
-      csvKeys.date = headers.find(h => h.includes('วันที่') || h.includes('เวลา')) || headers[4];
+      csvKeys.id = headers.find(h => normalizeThaiString(h).includes('รหัส')) || headers[2];
+      csvKeys.name = headers.find(h => normalizeThaiString(h).includes('ชื่อสถานศึกษา') || normalizeThaiString(h).includes('โรงเรียน')) || headers[3];
+      csvKeys.sangkad = headers.find(h => normalizeThaiString(h).includes('สังกัด') || normalizeThaiString(h).includes('หน่วยงาน')) || headers[4];
+      csvKeys.amphoe = headers.find(h => normalizeThaiString(h).includes('อำเภอ') || normalizeThaiString(h).includes('เขต')) || headers[6];
+      csvKeys.date = headers.find(h => normalizeThaiString(h).includes('วันที่') || normalizeThaiString(h).includes('เวลา')) || headers[1];
 
-      // กรองเอาเฉพาะแถวที่มีข้อมูลชื่อโรงเรียน
       globalData = results.data.filter(row => row[csvKeys.name]); 
       processData(globalData);
       renderSearchTable(globalData); 
@@ -315,7 +337,6 @@ Papa.parse('data.csv', {
   }
 });
 
-// 2. คำนวณข้อมูลจาก CSV
 function processData(data) {
   const total = data.length;
   document.getElementById('kpi-total').innerText = total;
@@ -325,28 +346,25 @@ function processData(data) {
   const amphoeCounts = {};
 
   data.forEach(row => {
-    // ดึงปี พ.ศ. จากคอลัมน์วันที่
-    const dateStr = row[csvKeys.date] || '';
-    const parts = dateStr.trim().split(' ');
-    const year = parts[parts.length - 1]; 
-    if (year && !isNaN(year)) {
-      yearCounts[year] = (yearCounts[year] || 0) + 1;
-    }
+    // 1. ดึงปี พ.ศ. (ใช้ Regex ดึงตัวเลข 4 หลักออกมาเลย)
+    const dateStr = normalizeThaiString(row[csvKeys.date] || '');
+    const yearMatch = dateStr.match(/\d{4}/);
+    const year = yearMatch ? yearMatch[0] : null;
+    if (year) yearCounts[year] = (yearCounts[year] || 0) + 1;
 
-    // จัดกลุ่มสังกัด
-    const sangkad = (row[csvKeys.sangkad] || 'อื่นๆ').trim();
+    // 2. จัดกลุ่มสังกัด (ย่อชื่อให้สั้นลง)
+    const sangkad = shortenSangkad(row[csvKeys.sangkad] || 'อื่นๆ');
     if(sangkad) sangkadCounts[sangkad] = (sangkadCounts[sangkad] || 0) + 1;
 
-    // จัดกลุ่มอำเภอ
-    const amphoeRaw = (row[csvKeys.amphoe] || 'ไม่ระบุ').trim();
-    const amphoe = amphoeRaw.replace(/^อำเภอ/, '').trim(); // ตัดคำว่า "อำเภอ" ออกเพื่อความสวยงาม
+    // 3. จัดกลุ่มอำเภอ (ลบคำว่า "อำเภอ" ออกเพื่อให้กราฟสวย)
+    const amphoeRaw = normalizeThaiString(row[csvKeys.amphoe] || 'ไม่ระบุ').trim();
+    const amphoe = amphoeRaw.replace(/^อำเภอ/, '').trim(); 
     
     if (amphoe && amphoe !== 'ไม่ระบุ' && amphoe !== '-') {
       amphoeCounts[amphoe] = (amphoeCounts[amphoe] || 0) + 1;
     }
   });
 
-  // เตรียมข้อมูลกราฟปี
   const sortedYears = Object.keys(yearCounts).sort();
   const yearValues = sortedYears.map(y => yearCounts[y]);
   const maxYear = sortedYears[sortedYears.length - 1] || '-';
@@ -354,7 +372,6 @@ function processData(data) {
   document.getElementById('kpi-new').innerText = yearCounts[maxYear] || 0;
   document.getElementById('kpi-new-label').innerText = `สมาชิกใหม่ปี ${maxYear}`;
 
-  // เรียงลำดับข้อมูลจากมากไปน้อย
   const sangkadArr = Object.keys(sangkadCounts).map(k => ({name: k, count: sangkadCounts[k]})).sort((a,b) => b.count - a.count);
   const amphoeArr = Object.keys(amphoeCounts).map(k => ({name: k, count: amphoeCounts[k]})).sort((a,b) => b.count - a.count);
 
@@ -366,9 +383,8 @@ function processData(data) {
   renderAmphoeTable(amphoeArr, total);
 }
 
-// 3. ฟังก์ชันวาดกราฟ
 function renderCharts(years, yearVals, sangkadArr, amphoeArr) {
-  // กราฟปี
+  // Year Chart
   if(chartInstances.year) chartInstances.year.destroy();
   chartInstances.year = new Chart(document.getElementById('yearChart'), {
     type: 'bar',
@@ -386,14 +402,11 @@ function renderCharts(years, yearVals, sangkadArr, amphoeArr) {
     options: {
       responsive: true,
       plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: 'rgba(99,179,237,0.06)' } },
-        y: { grid: { color: 'rgba(99,179,237,0.08)' } }
-      }
+      scales: { x: { grid: { color: 'rgba(99,179,237,0.06)' } }, y: { grid: { color: 'rgba(99,179,237,0.08)' } } }
     }
   });
 
-  // กราฟสัดส่วนสังกัดหลัก (Donut)
+  // Donut Chart
   const top6 = sangkadArr.slice(0, 6);
   const rest = sangkadArr.slice(6).reduce((a, b) => a + b.count, 0);
   if(chartInstances.donut) chartInstances.donut.destroy();
@@ -410,15 +423,11 @@ function renderCharts(years, yearVals, sangkadArr, amphoeArr) {
       }]
     },
     options: {
-      responsive: true,
-      cutout: '62%',
-      plugins: {
-        legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } }
-      }
+      responsive: true, cutout: '62%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } } }
     }
   });
 
-  // กราฟอำเภอ Top 15
+  // Amphoe Chart
   const top15Amphoe = amphoeArr.slice(0, 15);
   if(chartInstances.amphoe) chartInstances.amphoe.destroy();
   chartInstances.amphoe = new Chart(document.getElementById('amphoeChart'), {
@@ -427,100 +436,4 @@ function renderCharts(years, yearVals, sangkadArr, amphoeArr) {
       labels: top15Amphoe.map(d => d.name),
       datasets: [{
         data: top15Amphoe.map(d => d.count),
-        backgroundColor: top15Amphoe.map((_, i) => `hsla(${170 + i * 8}, 70%, 55%, 0.75)`),
-        borderRadius: 4,
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: 'rgba(99,179,237,0.07)' }, ticks: { font: { size: 10 } } },
-        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-      }
-    }
-  });
-}
-
-// 4. เรนเดอร์รายการสังกัดทั้งหมด
-function renderSangkadList(sangkadArr) {
-  const maxCount = sangkadArr[0]?.count || 1;
-  const list = document.getElementById('sangkadList');
-  const barColors = [ACCENT, PURPLE, GREEN, ORANGE, GOLD, PINK, TEAL, '#e879f9', '#a78bfa', '#67e8f9', '#86efac', '#fca5a5'];
-  
-  list.innerHTML = '';
-  sangkadArr.forEach((d, i) => {
-    const pct = (d.count / maxCount * 100).toFixed(1);
-    const row = document.createElement('div');
-    row.className = 'sangkad-row';
-    row.innerHTML = `
-      <div class="sangkad-name" title="${d.name}">${d.name}</div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:0%;background:${barColors[i%barColors.length]}" data-w="${pct}%"></div>
-      </div>
-      <div class="sangkad-count">${d.count}</div>
-    `;
-    list.appendChild(row);
-  });
-
-  setTimeout(() => {
-    document.querySelectorAll('.bar-fill').forEach(el => { el.style.width = el.dataset.w; });
-  }, 100);
-}
-
-// 5. เรนเดอร์ตารางอันดับอำเภอ Top 10
-function renderAmphoeTable(amphoeArr, total) {
-  const tbody = document.querySelector('#amphoeTable tbody');
-  tbody.innerHTML = '';
-  amphoeArr.slice(0, 10).forEach((d, i) => {
-    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
-    const pct = (d.count / total * 100).toFixed(1);
-    const pillColor = i < 3 ? `background:rgba(56,189,248,0.12);color:var(--accent)` : `background:var(--surface2);color:var(--muted)`;
-    tbody.innerHTML += `
-      <tr>
-        <td><span class="rank ${rankClass}">${i+1}</span></td>
-        <td>${d.name}</td>
-        <td style="font-weight:600;color:#fff">${d.count}</td>
-        <td><span class="pill" style="${pillColor}">${pct}%</span></td>
-      </tr>
-    `;
-  });
-}
-
-// 6. เรนเดอร์ตารางค้นหาโรงเรียน
-const searchInput = document.getElementById('searchInput');
-const searchTbody = document.querySelector('#searchTable tbody');
-
-function renderSearchTable(dataToRender) {
-  searchTbody.innerHTML = '';
-  dataToRender.slice(0, 50).forEach(row => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${row[csvKeys.id] || '-'}</td>
-      <td style="color:#fff; font-weight:500;">${row[csvKeys.name] || '-'}</td>
-      <td>${row[csvKeys.sangkad] || '-'}</td>
-      <td>${row[csvKeys.amphoe] || '-'}</td>
-      <td>${row[csvKeys.date] || '-'}</td>
-    `;
-    searchTbody.appendChild(tr);
-  });
-
-  if (dataToRender.length === 0) {
-    searchTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--muted);">ไม่พบข้อมูลสถานศึกษาที่ค้นหา</td></tr>`;
-  }
-}
-
-// ค้นหาแบบ Real-time (ค้นได้ทั้งชื่อโรงเรียน และ ชื่ออำเภอ)
-searchInput.addEventListener('input', (e) => {
-  const keyword = e.target.value.toLowerCase().trim();
-  const filteredData = globalData.filter(row => {
-    const name = (row[csvKeys.name] || '').toLowerCase();
-    const amphoe = (row[csvKeys.amphoe] || '').toLowerCase();
-    return name.includes(keyword) || amphoe.includes(keyword);
-  });
-  renderSearchTable(filteredData);
-});
-</script>
-</body>
-</html>
+        backgroundColor: top15Amphoe.map((_, i) =>
