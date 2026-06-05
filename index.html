@@ -10,17 +10,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
   :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --border: rgba(99,179,237,0.12);
-    --accent: #38bdf8;
-    --accent2: #818cf8;
-    --accent3: #34d399;
-    --accent4: #fb923c;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --gold: #fbbf24;
+    /* พื้นหลังและพื้นผิว (ธีมสว่าง ขาว-ฟ้า) */
+    --bg: #f0f7ff;       /* ฟ้าอ่อนมากๆ เกือบขาว */
+    --surface: #ffffff;  /* ขาวบริสุทธิ์ */
+    --surface2: #e1effe; /* ฟ้าอ่อนสำหรับองค์ประกอบรอง */
+
+    /* เส้นขอบ */
+    --border: #d1d5db;   /* เทาอ่อน */
+
+    /* สีเน้น (โทน ฟ้า-น้ำเงิน) */
+    --accent: #38bdf8;   /* ฟ้าสว่าง */
+    --accent2: #2563eb;  /* น้ำเงินเข้มปานกลาง */
+    --accent3: #0891b2;  /* ฟ้าอมเขียว (Cyan) */
+    --accent4: #1e3a8a;  /* น้ำเงินเข้ม (Navy) */
+
+    /* สีข้อความ (โทน น้ำเงินเข้ม) */
+    --text: #0f172a;     /* น้ำเงินดำ */
+    --muted: #64748b;    /* เทาอมน้ำเงิน */
+    --gold: #0369a1;     /* น้ำเงินเข้มอมฟ้า (แทนที่สีทอง) */
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,9 +44,10 @@
     content: '';
     position: fixed;
     inset: 0;
+    /* ปรับเป็นสีฟ้าอ่อนจางๆ บนพื้นขาว */
     background-image:
-      linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(56,189,248,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.06) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
     z-index: 0;
@@ -56,30 +64,30 @@
   /* Header */
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
   .header-left { display: flex; align-items: center; gap: 1rem; }
-  .logo-icon { width: 52px; height: 52px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 0 24px rgba(56,189,248,0.35); }
-  h1 { font-family: 'Prompt', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.2; }
-  h1 span { display: block; font-size: 0.85rem; font-weight: 300; color: var(--accent); letter-spacing: 0.08em; margin-top: 2px; }
-  .badge { background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.3); color: var(--accent); padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; }
+  .logo-icon { width: 52px; height: 52px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(56,189,248,0.25); color: #fff; }
+  h1 { font-family: 'Prompt', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+  h1 span { display: block; font-size: 0.85rem; font-weight: 300; color: var(--accent2); letter-spacing: 0.08em; margin-top: 2px; }
+  .badge { background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.3); color: var(--accent2); padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; }
 
   /* KPI Cards */
   .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 1.75rem; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
-  .kpi-card:hover { transform: translateY(-3px); border-color: rgba(56,189,248,0.3); }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 1.75rem; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+  .kpi-card:hover { transform: translateY(-3px); border-color: rgba(37,99,235,0.3); }
   .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
   .kpi-card.blue::before  { background: var(--accent); } .kpi-card.purple::before { background: var(--accent2); } .kpi-card.green::before  { background: var(--accent3); } .kpi-card.orange::before { background: var(--accent4); }
   .kpi-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
-  .kpi-value { font-family: 'Prompt', sans-serif; font-size: 2.4rem; font-weight: 700; line-height: 1; color: #fff; margin-bottom: 0.35rem; }
+  .kpi-value { font-family: 'Prompt', sans-serif; font-size: 2.4rem; font-weight: 700; line-height: 1; color: var(--text); margin-bottom: 0.35rem; }
   .kpi-value .unit { font-size: 1rem; font-weight: 400; color: var(--muted); margin-left: 4px; }
   .kpi-label { font-size: 0.85rem; color: var(--muted); font-weight: 400; }
   .kpi-sub { margin-top: 0.75rem; font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 6px; display: inline-block; }
-  .kpi-card.blue .kpi-sub   { background: rgba(56,189,248,0.1);  color: var(--accent); } .kpi-card.purple .kpi-sub { background: rgba(129,140,248,0.1); color: var(--accent2); } .kpi-card.green .kpi-sub  { background: rgba(52,211,153,0.1);  color: var(--accent3); } .kpi-card.orange .kpi-sub { background: rgba(251,146,60,0.1);  color: var(--accent4); }
+  .kpi-card.blue .kpi-sub   { background: rgba(56,189,248,0.1);  color: var(--accent); } .kpi-card.purple .kpi-sub { background: rgba(37,99,235,0.1); color: var(--accent2); } .kpi-card.green .kpi-sub  { background: rgba(8,145,178,0.1);  color: var(--accent3); } .kpi-card.orange .kpi-sub { background: rgba(30,58,138,0.1);  color: var(--accent4); }
 
   /* Charts & Layout */
   .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
   .chart-full { grid-column: 1 / -1; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
   .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
-  .card-title { font-family: 'Prompt', sans-serif; font-size: 1rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+  .card-title { font-family: 'Prompt', sans-serif; font-size: 1rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
   .card-title .dot { width: 8px; height: 8px; border-radius: 50%; }
   canvas { max-height: 300px; }
 
@@ -89,29 +97,33 @@
   .sangkad-name { font-size: 0.78rem; color: var(--text); width: 220px; flex-shrink: 0; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bar-track { flex: 1; height: 10px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 999px; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); width: 0%; }
-  .sangkad-count { font-size: 0.8rem; font-weight: 600; color: var(--accent); width: 40px; text-align: right; flex-shrink: 0; }
+  .sangkad-count { font-size: 0.8rem; font-weight: 600; color: var(--accent2); width: 40px; text-align: right; flex-shrink: 0; }
 
   /* Table & Search */
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
   thead tr { background: var(--surface2); position: sticky; top: 0; z-index: 2; }
-  th { padding: 0.75rem 1rem; text-align: left; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; font-size: 0.75rem; text-transform: uppercase; }
+  th { padding: 0.75rem 1rem; text-align: left; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--border); }
   th:first-child { border-radius: 8px 0 0 8px; } th:last-child  { border-radius: 0 8px 8px 0; }
   tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-  tbody tr:hover { background: var(--surface2); }
+  tbody tr:hover { background: rgba(225,239,254,0.5); }
   td { padding: 0.7rem 1rem; color: var(--text); vertical-align: middle; }
   .rank { width: 30px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; }
-  .rank-1 { background: rgba(251,191,36,0.15); color: var(--gold); } .rank-2 { background: rgba(148,163,184,0.15); color: #94a3b8; } .rank-3 { background: rgba(251,146,60,0.15); color: var(--accent4); } .rank-n { background: var(--surface2); color: var(--muted); }
+  /* ปรับสี Rank เป็นโทนน้ำเงิน */
+  .rank-1 { background: rgba(3,105,161,0.15); color: var(--gold); } /* น้ำเงินเข้ม */
+  .rank-2 { background: rgba(37,99,235,0.15); color: var(--accent2); } /* น้ำเงินเข้มปานกลาง */
+  .rank-3 { background: rgba(56,189,248,0.15); color: var(--accent); } /* ฟ้าสว่าง */
+  .rank-n { background: var(--surface2); color: var(--muted); }
   .pill { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
   
   .search-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
-  .search-box { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: 'Sarabun', sans-serif; outline: none; width: 320px; font-size: 0.9rem; transition: border-color 0.2s; }
-  .search-box:focus { border-color: var(--accent); }
+  .search-box { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'Sarabun', sans-serif; outline: none; width: 320px; font-size: 0.9rem; transition: border-color 0.2s, box-shadow 0.2s; }
+  .search-box:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
   /* Pagination */
   .pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
-  .page-btn { background: var(--surface2); color: var(--text); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; transition: 0.2s; font-family: 'Sarabun', sans-serif; font-size: 0.85rem; }
-  .page-btn:hover:not(:disabled) { background: var(--accent); color: #000; border-color: var(--accent); }
+  .page-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; transition: 0.2s; font-family: 'Sarabun', sans-serif; font-size: 0.85rem; }
+  .page-btn:hover:not(:disabled) { background: var(--accent2); color: #fff; border-color: var(--accent2); }
   .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .page-info { color: var(--muted); font-size: 0.85rem; margin: 0 1rem; }
 
@@ -133,9 +145,10 @@
       <div class="logo-icon">📚</div>
       <h1>
         ข้อมูลโรงเรียนสวนพฤกษศาสตร์
+        <span>จังหวัดเชียงใหม่</span>
       </h1>
     </div>
-    <div class="badge">จังหวัดเชียงใหม่</div>
+    <div class="badge">ข้อมูลล่าสุด</div>
   </header>
 
   <div class="kpi-grid">
@@ -169,7 +182,7 @@
     <div class="card chart-full" style="animation-delay:0.25s">
       <div class="card-header">
         <div class="card-title">
-          <span class="dot" style="background:var(--accent)"></span>
+          <span class="dot" style="background:var(--accent2)"></span>
           จำนวนสมาชิกที่เพิ่มขึ้นรายปี (พ.ศ.)
         </div>
       </div>
@@ -181,7 +194,7 @@
     <div class="card" style="animation-delay:0.3s">
       <div class="card-header">
         <div class="card-title">
-          <span class="dot" style="background:var(--accent2)"></span>
+          <span class="dot" style="background:var(--accent3)"></span>
           สัดส่วนสังกัดหลัก (Top 6)
         </div>
       </div>
@@ -191,7 +204,7 @@
     <div class="card" style="animation-delay:0.35s">
       <div class="card-header">
         <div class="card-title">
-          <span class="dot" style="background:var(--accent3)"></span>
+          <span class="dot" style="background:var(--accent)"></span>
           อำเภอที่มีสมาชิกมากที่สุด (Top 15)
         </div>
       </div>
@@ -203,7 +216,7 @@
     <div class="card chart-full" style="animation-delay:0.4s">
       <div class="card-header">
         <div class="card-title">
-          <span class="dot" style="background:var(--gold)"></span>
+          <span class="dot" style="background:var(--accent4)"></span>
           สังกัดทั้งหมด — จำนวนสมาชิก
         </div>
       </div>
@@ -215,7 +228,7 @@
     <div class="card chart-full" style="animation-delay:0.45s">
       <div class="card-header">
         <div class="card-title">
-          <span class="dot" style="background:var(--accent4)"></span>
+          <span class="dot" style="background:var(--accent2)"></span>
           อันดับอำเภอ — Top 10
         </div>
       </div>
@@ -269,17 +282,18 @@
 </div>
 
 <script>
-Chart.defaults.color = '#64748b';
+// ปรับโทนสีในกราฟเป็นโทน ฟ้า-ขาว-น้ำเงิน
+Chart.defaults.color = '#475569'; // muted text color
 Chart.defaults.font.family = "'Sarabun', sans-serif";
 
-const ACCENT  = '#38bdf8';
-const PURPLE  = '#818cf8';
-const GREEN   = '#34d399';
-const ORANGE  = '#fb923c';
-const GOLD    = '#fbbf24';
-const PINK    = '#f472b6';
-const TEAL    = '#2dd4bf';
-const donutColors = [ACCENT, PURPLE, GREEN, ORANGE, GOLD, PINK, TEAL];
+const BLUE_SKY   = '#38bdf8'; // ฟ้าสว่าง
+const BLUE_MED   = '#2563eb'; // น้ำเงินกลาง
+const BLUE_CYAN  = '#0891b2'; // ฟ้าอมเขียว
+const BLUE_NAVY  = '#1e3a8a'; // น้ำเงินเข้ม
+const BLUE_DARK  = '#0369a1'; // น้ำเงินอมฟ้า
+const BLUE_LIGHT = '#e1effe'; // ฟ้าอ่อนมากๆ
+
+const donutColors = [BLUE_MED, BLUE_CYAN, BLUE_SKY, BLUE_DARK, BLUE_NAVY, '#818cf8', '#6366f1']; // โทนฟ้า-น้ำเงินผสม purple/indigo บ้างเพื่อความหลากหลายใน Pie chart
 
 let globalData = [];
 let currentFilteredData = [];
@@ -341,7 +355,7 @@ Papa.parse('data.csv', {
   error: function(err) {
     console.error("PapaParse Error:", err);
     const errorMsg = `
-      <div style="text-align:center; padding: 2rem; color:#fca5a5; background: rgba(252, 165, 165, 0.1); border-radius: 8px;">
+      <div style="text-align:center; padding: 2rem; color:#b91c1c; background: rgba(254, 226, 226, 0.5); border: 1px solid #f87171; border-radius: 8px;">
         <h3 style="margin-bottom:1rem; font-family:'Prompt', sans-serif;">⚠️ ไม่สามารถโหลดข้อมูล data.csv ได้</h3>
         <p style="margin-bottom:0.5rem; font-size:0.9rem;">หากคุณเปิดไฟล์ <b>index.html</b> ในคอมพิวเตอร์โดยตรง เบราว์เซอร์จะบล็อกการอ่านไฟล์เพื่อความปลอดภัย</p>
         <p style="font-size:0.9rem; color:var(--text);"><b>วิธีแก้ไข:</b> กรุณานำไฟล์นี้ขึ้นไปวางบน <b>GitHub Pages</b> หรือรันผ่านโปรแกรม <b>Live Server</b> ครับ</p>
@@ -409,7 +423,7 @@ function renderTablePage() {
   pageData.forEach(row => {
     const amphoe = normalizeThaiString(row[csvKeys.amphoe] || '-').replace(/^อ[ำา]เภอ/, '').trim();
     const sangkad = shortenSangkad(row[csvKeys.sangkad] || '-');
-    searchTbody.innerHTML += `<tr><td>${normalizeThaiString(row[csvKeys.id]) || '-'}</td><td style="color:#fff; font-weight:500;">${normalizeThaiString(row[csvKeys.name]) || '-'}</td><td>${sangkad}</td><td>${amphoe}</td><td>${normalizeThaiString(row[csvKeys.date]) || '-'}</td></tr>`;
+    searchTbody.innerHTML += `<tr><td>${normalizeThaiString(row[csvKeys.id]) || '-'}</td><td style="color:var(--text); font-weight:500;">${normalizeThaiString(row[csvKeys.name]) || '-'}</td><td>${sangkad}</td><td>${amphoe}</td><td>${normalizeThaiString(row[csvKeys.date]) || '-'}</td></tr>`;
   });
 
   if (currentFilteredData.length === 0) {
@@ -454,21 +468,22 @@ searchInput.addEventListener('input', (e) => {
 
 function renderCharts(years, yearVals, sangkadArr, amphoeArr) {
   if(chartInstances.year) chartInstances.year.destroy();
-  chartInstances.year = new Chart(document.getElementById('yearChart'), { type: 'bar', data: { labels: years, datasets: [{ label: 'จำนวนสมาชิกใหม่', data: yearVals, backgroundColor: yearVals.map((v, i) => i === yearVals.length - 1 ? 'rgba(251,191,36,0.85)' : 'rgba(56,189,248,0.6)'), borderColor: yearVals.map((v, i) => i === yearVals.length - 1 ? '#fbbf24' : ACCENT), borderWidth: 1.5, borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(99,179,237,0.06)' } }, y: { grid: { color: 'rgba(99,179,237,0.08)' } } } } });
+  chartInstances.year = new Chart(document.getElementById('yearChart'), { type: 'bar', data: { labels: years, datasets: [{ label: 'จำนวนสมาชิกใหม่', data: yearVals, backgroundColor: yearVals.map((v, i) => i === yearVals.length - 1 ? 'rgba(3,105,161,0.85)' : 'rgba(37,99,235,0.6)'), borderColor: yearVals.map((v, i) => i === yearVals.length - 1 ? BLUE_DARK : BLUE_MED), borderWidth: 1.5, borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(209,213,219,0.4)' } }, y: { grid: { color: 'rgba(209,213,219,0.6)' } } } } });
 
   const top6 = sangkadArr.slice(0, 6); const rest = sangkadArr.slice(6).reduce((a, b) => a + b.count, 0);
   if(chartInstances.donut) chartInstances.donut.destroy();
-  chartInstances.donut = new Chart(document.getElementById('donutChart'), { type: 'doughnut', data: { labels: [...top6.map(d => d.name), 'อื่นๆ'], datasets: [{ data: [...top6.map(d => d.count), rest], backgroundColor: [...donutColors.slice(0,6), '#334155'], borderColor: '#111827', borderWidth: 3, hoverOffset: 8 }] }, options: { responsive: true, cutout: '62%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } } } } });
+  chartInstances.donut = new Chart(document.getElementById('donutChart'), { type: 'doughnut', data: { labels: [...top6.map(d => d.name), 'อื่นๆ'], datasets: [{ data: [...top6.map(d => d.count), rest], backgroundColor: [...donutColors.slice(0,6), '#94a3b8'], borderColor: '#ffffff', borderWidth: 3, hoverOffset: 8 }] }, options: { responsive: true, cutout: '62%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 11 }, color: '#475569' } } } } });
 
   const top15Amphoe = amphoeArr.slice(0, 15);
   if(chartInstances.amphoe) chartInstances.amphoe.destroy();
-  chartInstances.amphoe = new Chart(document.getElementById('amphoeChart'), { type: 'bar', data: { labels: top15Amphoe.map(d => d.name), datasets: [{ data: top15Amphoe.map(d => d.count), backgroundColor: top15Amphoe.map((_, i) => `hsla(${170 + i * 8}, 70%, 55%, 0.75)`), borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(99,179,237,0.07)' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } } });
+  chartInstances.amphoe = new Chart(document.getElementById('amphoeChart'), { type: 'bar', data: { labels: top15Amphoe.map(d => d.name), datasets: [{ data: top15Amphoe.map(d => d.count), backgroundColor: top15Amphoe.map((_, i) => `hsla(${200 + (i%2)*20}, 80%, ${50 + i*2}%, 0.75)`), borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(209,213,219,0.5)' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } } });
 }
 
 function renderSangkadList(sangkadArr) {
   const maxCount = sangkadArr[0]?.count || 1;
   const list = document.getElementById('sangkadList');
-  const barColors = [ACCENT, PURPLE, GREEN, ORANGE, GOLD, PINK, TEAL, '#e879f9', '#a78bfa', '#67e8f9', '#86efac', '#fca5a5'];
+  // ปรับสี Bar เป็นโทนน้ำเงิน-ฟ้า
+  const barColors = [BLUE_MED, BLUE_CYAN, BLUE_SKY, BLUE_NAVY, BLUE_DARK, '#818cf8', '#6366f1', '#a5b4fc', '#06b6d4', '#34d399'];
   list.innerHTML = '';
   sangkadArr.forEach((d, i) => { const pct = (d.count / maxCount * 100).toFixed(1); list.innerHTML += `<div class="sangkad-row"><div class="sangkad-name" title="${d.name}">${d.name}</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:${barColors[i%barColors.length]}" data-w="${pct}%"></div></div><div class="sangkad-count">${d.count}</div></div>`; });
   setTimeout(() => { document.querySelectorAll('.bar-fill').forEach(el => { el.style.width = el.dataset.w; }); }, 100);
@@ -476,7 +491,7 @@ function renderSangkadList(sangkadArr) {
 
 function renderAmphoeTable(amphoeArr, total) {
   const tbody = document.querySelector('#amphoeTable tbody'); tbody.innerHTML = '';
-  amphoeArr.slice(0, 10).forEach((d, i) => { const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'; const pct = (d.count / total * 100).toFixed(1); const pillColor = i < 3 ? `background:rgba(56,189,248,0.12);color:var(--accent)` : `background:var(--surface2);color:var(--muted)`; tbody.innerHTML += `<tr><td><span class="rank ${rankClass}">${i+1}</span></td><td>${d.name}</td><td style="font-weight:600;color:#fff">${d.count}</td><td><span class="pill" style="${pillColor}">${pct}%</span></td></tr>`; });
+  amphoeArr.slice(0, 10).forEach((d, i) => { const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'; const pct = (d.count / total * 100).toFixed(1); const pillColor = i < 3 ? `background:rgba(37,99,235,0.1);color:var(--accent2)` : `background:var(--surface2);color:var(--muted)`; tbody.innerHTML += `<tr><td><span class="rank ${rankClass}">${i+1}</span></td><td>${d.name}</td><td style="font-weight:600;color:var(--text)">${d.count}</td><td><span class="pill" style="${pillColor}">${pct}%</span></td></tr>`; });
 }
 </script>
 </body>
